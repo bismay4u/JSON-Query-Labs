@@ -1,0 +1,43 @@
+<div id='tab_home' class='page_tabs active tab_padded'>
+	<div id='homePage1'>
+
+	</div>
+	<!-- <div id='homePage2'>
+
+	</div> -->
+	<h4 for='recentNoteList'># Recent Notes</h4>
+	<ul id='recentNoteList' class='list-group'>
+		
+	</ul>
+	<h4 for='localNoteList'># Local Notes</h4>
+	<ul id='localNoteList' class='list-group'>
+		
+	</ul>
+</div>
+<div id='tab_settings' class='page_tabs tab_padded'>
+
+</div>
+<script>
+function loadHomeNoteLists() {
+	$("#recentNoteList").html("");
+	$("#localNoteList").html("");
+	$.each(NOTEBOOKS.recent, function(a,b) {
+		$("#recentNoteList").prepend("<a href='#' class='list-group-item actionCMD' data-cmd='openDocumentTab' data-noteid='"+b.noteid+"'>"+b.title+"</a>");
+	});
+	
+	$.each(NOTEBOOKS.local, function(a,b) {
+		$("#localNoteList").append("<a href='#' class='list-group-item actionCMD' data-cmd='openDocumentTab' data-noteid='"+b.noteid+"'>"+b.title+"</a>");
+	});
+
+	if($("#recentNoteList").children().length<=0) {
+		$("#recentNoteList").html("<h5 class='text-center'>No notes found for you</h5>");
+	}
+	if($("#localNoteList").children().length<=0) {
+		$("#localNoteList").html("<h5 class='text-center'>No notes found for you</h5>");
+	}
+}
+$("#tab_settings").load("./app/pages/settings.html");
+loadHomeNoteLists();
+// $("#homePage1").load("./app/comps/dash-cards.html");
+// $("#homePage2").load("./app/comps/dash-table.html");
+</script>
