@@ -37,6 +37,11 @@ function createWindow() {
 
     try{
         const screenSize = electron.screen.getPrimaryDisplay().size;
+
+        _width = screenSize.width/1.2;
+        _height = screenSize.height/1.2;
+
+        mainWindow.setSize(_width, _height);
         mainWindow.setPosition( (screenSize.width  - _width )  / 2,
                         ((screenSize.height - _height ) / 2))
     } catch(er) {
@@ -44,7 +49,7 @@ function createWindow() {
     }
 
     mainWindow.setMenu(null);
-    mainWindow.openDevTools();
+    // mainWindow.openDevTools();
 
     // mainWindow.loadURL(`file://${__dirname}/index.html`)
     mainWindow.loadURL(url.format({

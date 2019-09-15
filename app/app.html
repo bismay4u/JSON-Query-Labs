@@ -1,37 +1,373 @@
 <div id="wrapper">
-    <!-- Navigation -->
-    <nav id='navbar' class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <nav id='navbar1' class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="row">
+            <div class="col-xs-2 col-md-1 col-lg-1 nopadding" style="padding-left: 20px;">
+                <select class="select form-control" name='METHOD' id='reqMethod'>
+                    <option>GET</option>
+                    <option>POST</option>
+                </select>
+            </div>
+            <div class="col-xs-6 col-md-6 col-lg-6">
+                <input type="url" class="form-control text" placeholder="Request URL ..." name='URL' id='reqURL'>
+            </div>
+            <div class="col-xs-1 col-md-1 col-lg-1 nopadding">
+                <button onclick="showRequestParams(this)" class='btn btn-default'> ... </button>
+                <button onclick="fetchRequestData(this)" class='btn btn-default'> <i class="fa fa-play"></i> </button>
+            </div>
+            <div class="col-xs-3 col-md-4 col-lg-4 nopadding text-right" style="padding-right: 20px;">
+                <button onclick="loadLocalFile(this)" class='btn btn-default pull-left'> <i class="fa fa-paperclip"></i> </button>
+
+                <button onclick="beautifyJSONData(this)" class='btn btn-default'> <i class="fa fa-code"></i> </button>
+
+                <button onclick="clearJSONData(this)" class='btn btn-default'> <i class="fa fa-eraser"></i> </button>
+                <button onclick="showTerminal(this)" class='btn btn-default'> <i class="fa fa-terminal"></i> </button>
+
+                <button onclick="showAboutProject(this)" class='btn btn-default'> <i class="fa fa-info-circle"></i> </button>
+            </div>
+        </div>
     </nav>
-    <!-- /.Navigation -->
     <div id="page-wrapper">
-        <div class="container-fluid">
-            <div id='alertMsg' class="row hidden">
-                <div class="col-lg-12">
-                    <div class="alert alert-info alert-dismissable">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        <div>
-                            <i class="fa fa-info-circle"></i>  
-                            <strong>Welcome</strong> To the home of wonderfull
-                        </div>
-                    </div>
+        <div id='mainBody' class="container-fluid">
+            <div class='col-xs-6 col-md-6 col-lg-6 noPadding'>
+                <label class=''>JSON Data Source</label>
+            	<div class="editorArea">
+                    <textarea id='jsonEditorArea' class='editorArea'>{
+}</textarea>
+                </div>
+            </div>
+            <div class='col-xs-6 col-md-6 col-lg-6 noPadding'>
+                <label class=''>JSON Query Response</label>
+            	<div class="editorArea">
+                    <textarea id='jsonQueryArea' class='editorArea' readonly="">JSON Query Output ...</textarea>
                 </div>
             </div>
         </div>
-        <div id='mainBody' class="container-fluid">
-            <div class='ajaxloading text-center'>
-                <br><br>
-                <div class='fa fa-spinner fa-spin fa-5x'></div>
-                <br><br>
-                Loading Application ...
+    </div>
+    <nav id='navbar2' class="navbar navbar-inverse navbar-fixed-bottom" role="navigation">
+        <div class="row">
+            <div class="col-xs-3 col-md-2 col-lg-1 nopadding" style="padding-left: 20px;">
+                <label class=''>JSON Query</label>
+            </div>
+            <div class="col-xs-7 col-md-8 col-lg-8">
+                <input type="text" class="form-control text" placeholder="JSON Query, press enter to RUN" id='jsonQuery' />
+            </div>
+            <div class="col-xs-2 col-md-2 col-lg-3 nopadding" style="padding-right: 20px;">
+                
+                <div class="input-group">
+                    <select class="select form-control" id='jsonQueryLibrary'>
+                        <option>JSON-Query</option>
+                    </select>  
+                    <div class="input-group-addon" onclick="aboutJSONLibrary(this)"><i class="fa fa-question-circle"></i></div>
+                </div>
             </div>
         </div>
-        <!-- /.container-fluid -->
+    </nav>
+    <div id='errorTerminal' class='errorTerminal hidden'>
+        <pre id='errorTerminalContent'></pre>
     </div>
-    <!-- /#page-wrapper -->
 </div>
 <script>
-//$("#navbar").load("./app/comps/navbar.html");
-$("#mainBody").css("height",($(window).height()-$("#navbar").height()-10)+"px");
-// $("#mainBody").css("min-height",($(window).height()-$("#navbar").height()-10)+"px");
+var editor = null;
+var editorResponse = null;
+//$("#navbar1").load("./app/comps/navbar.html");
+$(window).on("resize", function() {
+    resizeWorkspace();
+});
+function resizeWorkspace() {
+    //// $("#mainBody").css("min-height",($(window).height()-$("#navbar").height()-10)+"px");
+    $("#mainBody").css("height",($(window).height()-$("#navbar1").height()-$("#navbar2").height()-6)+"px");
+    $(".editorArea").css("height",($("#mainBody").height()-28)+"px");
+}
 //appUI.navigatePage(APPCONFIG.HOME,$("#sidebarMenu a[href='"+APPCONFIG.HOME+"']"));
+
+resizeWorkspace();
+loadUIData();
+
+function loadUIData() {
+    ace.config.set('basePath', './app/assets/js/ace');
+
+    editor = ace.edit("jsonEditorArea");
+    editor.setTheme("ace/theme/twilight");
+    editor.session.setMode(new aceMode.Mode());
+
+    editorResponse = ace.edit("jsonQueryArea");
+    editorResponse.setTheme("ace/theme/twilight");
+    editorResponse.session.setMode(new aceMode1.Mode());
+    editorResponse.setReadOnly(true);
+
+    lastRequest = localStorage.getItem("LAST_REQUEST");
+    try {
+        lastRequest = JSON.parse(lastRequest);
+        if(lastRequest!=null) {
+            $.each(lastRequest, function(a,b) {
+                $("input[name='"+a+"'],select[name='"+a+"'],textarea[name='"+a+"']","#navbar1").val(b);
+            });
+        }
+    } catch(e) {
+
+    }
+
+
+    lastData = localStorage.getItem("LAST_DATA");
+    if(lastData==null || lastData.length<=0) lastData = "{\n}";
+    editor.setValue(lastData);
+    beautifyJSONData();
+
+    optHTML = "";
+    $.each(APPCONFIG.JSONLIBRARY, function(a,b) {
+        optHTML+="<option value='"+a+"' data-ref="+b+">"+a+"</option>";
+    });
+    $("#jsonQueryLibrary").html(optHTML);
+
+    lastLib = localStorage.getItem("LAST_LIBRARY");
+    if(lastLib==null) lastLib = Object.keys(APPCONFIG.JSONLIBRARY)[0];
+    $("#jsonQueryLibrary").val(lastLib);
+
+    lastQuery = localStorage.getItem("LAST_QUERY");
+    $("#jsonQuery").val(lastQuery);
+
+    $("#reqURL").on("keydown", function(e) {
+        if(e.keyCode==13) {
+            fetchRequestData();
+        }
+    });
+
+    $("#jsonQuery").on("keydown", function(e) {
+        if(e.keyCode==13) {
+            runJSONQuery();
+        }
+    });
+}
+
+
+function fetchRequestData() {
+    if($("#reqURL").val()==null || $("#reqURL").val().length<=0) {
+        alert("Request URL Field can not be empty :-)");
+        return;
+    }
+    lastRequest = {};
+    $("input[name],select[name],textarea[name]","#navbar1").each(function(a,b) {
+        lastRequest[$(this).attr("name")] = $(this).val();
+    });
+    localStorage.setItem("LAST_REQUEST",JSON.stringify(lastRequest));
+
+    reqHeaders = {};
+    reqPayload = {};
+
+    editor.setValue("Loading ...");
+    editor.selection.clearSelection();
+
+    switch(lastRequest.METHOD) {
+        case "GET":
+            $.ajax({
+                method: lastRequest.METHOD,
+                dataType: 'json',
+                url: lastRequest.URL,
+                // data: reqPayload,
+                headers: reqHeaders,
+                success: function(data){
+                    localStorage.setItem("LAST_DATA",JSON.stringify(data));
+                    editor.setValue(JSON.stringify(data));
+                    beautifyJSONData();
+                },
+                error: function(err) {
+                    editor.setValue("{\n}");
+                    editor.selection.clearSelection();
+
+                    logErrorInTerminal(err);
+
+                    if(err.statusText=="parsererror") {
+                        alert("Received data in none JSON format,\nCheck console for actual data.");
+                    } else {
+                        alert("Error occurred during recieving data, try again\n\nError:"+err.statusText);
+                    }
+                }
+            });
+        break;
+        case "POST":
+            $.ajax({
+                method: lastRequest.METHOD,
+                dataType: 'json',
+                url: lastRequest.URL,
+                data: reqPayload,
+                headers: reqHeaders,
+                success: function(data){
+                    localStorage.setItem("LAST_DATA",JSON.stringify(data));
+                    editor.setValue(JSON.stringify(data));
+                    beautifyJSONData();
+                },
+                error: function(err) {
+                    editor.setValue("{\n}");
+                    editor.selection.clearSelection();
+
+                    logErrorInTerminal(err);
+
+                    if(err.statusText=="parsererror") {
+                        alert("Received data in none JSON format,\nCheck console for actual data.");
+                    } else {
+                        alert("Error occurred during recieving data, try again\n\nError:"+err.statusText);
+                    }
+                }
+            });
+        break;
+    }
+}
+
+function runJSONQuery() {
+    jsonLib = $("#jsonQueryLibrary").val();
+    localStorage.setItem("LAST_LIBRARY",jsonLib);
+
+    jsonQueryString = $("#jsonQuery").val();
+    if(jsonQueryString==null || jsonQueryString.length<=0) {
+        alert("JSON Query Not Found");
+        return;
+    }
+
+    jsonDataString = editor.getValue();
+    if(jsonDataString==null || jsonDataString.length<=0) {
+        alert("JSON Data Not Found");
+        return;
+    }
+
+    localStorage.setItem("LAST_DATA",jsonDataString);
+    localStorage.setItem("LAST_QUERY",jsonQueryString);
+
+    editorResponse.setValue("Processing Query ...");
+    editorResponse.selection.clearSelection();
+    editorResponse.session.setMode(new aceMode1.Mode());
+
+    queryResponse = {};
+
+    jsonQueryString = jsonQueryString.split("@");
+
+    switch(jsonLib.toLowerCase()) {
+        case "json-query":
+            queryResponse = jsonQuery(jsonQueryString[0], { data: JSON.parse(jsonDataString), allowRegexp : true });
+            if(queryResponse.value!=null) {
+                queryResponse = queryResponse.value;
+
+                if(!Array.isArray(queryResponse)) {
+                    queryResponse = [queryResponse];
+                }
+            }
+            else queryResponse = {};
+        break;
+        case "regexp":
+            regex = new RegExp(jsonQueryString[0],"gm")
+            queryResponse = [];
+            var m;
+            while ((m = regex.exec(jsonDataString)) !== null) {
+                if (m.index === regex.lastIndex) {
+                    regex.lastIndex++;
+                }
+                
+                m.forEach((match, groupIndex) => {
+                    queryResponse.push(match);
+                });
+            }
+        break;
+        default:
+            alert("Selected JSON Query Library is not supported yet");
+            return;
+    }
+
+    try {
+        if(jsonQueryString[1]!=null) {
+           switch(jsonQueryString[1].toLowerCase()) {
+                case "length":
+                    queryResponse = queryResponse.length;
+                break;
+           }
+        }
+        editorResponse.setValue(JSON.stringify(queryResponse, null, '\t'));
+        editorResponse.session.setMode(new aceMode.Mode());
+        editorResponse.selection.clearSelection();
+    } catch(e) {
+        editorResponse.setValue("Error occurred while processing query");
+    }
+}
+
+function loadLocalFile() {
+    filePath = dialogUtils.showOpenDialog({ properties: ['openFile'] });
+    
+    if(filePath==null || filePath[0]==null) return;
+
+    ext = filePath[0].split(".");
+    ext = ext[ext.length-1].toLowerCase();
+
+    if(["json","jsonp","js","txt"].indexOf(ext)<0) {
+        alert("Selected file is not a JSON/Text file");
+        return;
+    }
+
+    fs.readFile(filePath[0], 'utf-8', (err, data) => {
+            if(err){
+                //console.log("An error ocurred reading the file :" + err.message);
+                alert(err.message);
+                return;
+            }
+
+            try {
+                jsonData=JSON.parse(data);
+
+                localStorage.setItem("LAST_FILE",filePath[0]);
+
+                localStorage.setItem("LAST_DATA",data);
+                editor.setValue(data);
+                beautifyJSONData();    
+            } catch(e) {
+                alert("Error loading file content, may not be a JSON File");
+            }
+        });
+}
+
+function beautifyJSONData() {
+    try {
+        editor.setValue(JSON.stringify(JSON.parse(editor.getValue()), null, '\t'));
+        editor.selection.clearSelection();
+    } catch(e) {}
+
+    try {
+        editorResponse.setValue(JSON.stringify(JSON.parse(editorResponse.getValue()), null, '\t'));
+        editorResponse.selection.clearSelection();
+    } catch(e) {}
+}
+function clearJSONData() {
+    editor.setValue("{\n}");
+    editor.selection.clearSelection();
+
+    editorResponse.setValue("");
+    editorResponse.selection.clearSelection();
+}
+function showTerminal() {
+    $("#errorTerminal").toggleClass("hidden");
+}
+function showRequestParams() {
+
+}
+
+function aboutJSONLibrary() {
+    jsonLibrary = $("#jsonQueryLibrary").val();
+    if(APPCONFIG.JSONLIBRARY[jsonLibrary]!=null && APPCONFIG.JSONLIBRARY[jsonLibrary].length>1) {
+        //window.open(APPCONFIG.JSONLIBRARY[jsonLibrary]);
+        shell.openExternal(APPCONFIG.JSONLIBRARY[jsonLibrary])
+    }
+}
+
+function showAboutProject() {
+    shell.openExternal("https://github.com/bismay4u/JSON-Query-Labs")
+}
+
+function logErrorInTerminal(err, type="error") {
+    if(typeof err == "string") {
+        errorHTML = "<h5 class='error'>error</h5>"+err+"<hr>";
+        $("#errorTerminalContent").prepend(errorHTML);
+    } else {
+        if(err.responseText!=null) err.responseText = err.responseText.trim();
+        errorHTML = "<h5 class='error'>"+err.statusText+"<span class='timestamp'>"+moment().format("Y-MM-DD HH:mm:ss")+"</span>"+"</h5>"+err.responseText+"<hr>";
+        $("#errorTerminalContent").prepend(errorHTML);
+    }
+    console.log(err);
+}
+
 </script>

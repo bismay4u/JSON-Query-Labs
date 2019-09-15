@@ -23,5 +23,9 @@
         "DEFAULT_STATE": "open",
         "SECURE_PAGES": [],
         "NOLOGIN_PAGES": ["login", "register", "forgetpwd", "pwdreset","home"]
+    },
+    "JSONLIBRARY":{
+        "json-query": "https://github.com/auditassistant/json-query",
+        "regexp": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions"
     }
 }

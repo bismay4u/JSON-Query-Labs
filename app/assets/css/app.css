@@ -1,10 +1,17 @@
-@import url("tree.css");
-
 body {
     margin-top: 32px;
 }
+
+label {
+    padding: 0px;
+    margin: 0px;
+    padding-left: 10px;
+}
+
 #mainBody {
     overflow: auto;
+    margin-top: 50px;
+    overflow: hidden;
 }
 #page-wrapper {
 	padding: 0px;
@@ -19,7 +26,7 @@ body {
 }
 
 #navbar {
-    height: 30px;
+    height: 50px;
     min-height: 32px;
     margin-bottom: 20px;
 }
@@ -75,4 +82,78 @@ body {
     padding-right: 3px;
     margin-top: 9px;
     cursor: pointer;
+}
+
+.editorArea {
+    width: 100%;
+    border: 1px solid #EFEFEF;
+    border: 0px;
+    outline: none;
+}
+#jsonQueryArea {
+    font-family: monospace;
+    font-weight: bold;
+}
+.ace_editor {
+    height: 100%;
+}
+.noPadding, .nopadding {
+    padding: 0px;
+}
+
+.navbar {
+    padding-top: 7px;
+}
+
+.navbar-inverse a, .navbar-inverse label {
+    color: white;
+}
+
+.navbar-inverse label {
+    line-height: 34px;
+    padding-left: 11px;
+    font-size: 16px;
+}
+
+
+.errorTerminal {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    /* top: 50px; */
+    border-top: 5px solid #FFF;
+    z-index: 9999999999999;
+    background: #333;
+    padding: 10px;
+    height: 200px;
+    min-height: 200px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.errorTerminal pre {
+    padding: 0px;
+    border: 0px;
+    background: transparent;
+    color: green;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.errorTerminal h5 {
+    font-weight: bolder;
+    text-transform: uppercase;
+    margin: 0px;
+}
+.errorTerminal h5.error {
+    color: red;
+}
+.errorTerminal h5.warning {
+    color: orange;
+}
+
+.errorTerminal .timestamp {
+    color: white;
+    float: right;
 }

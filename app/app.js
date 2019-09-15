@@ -1,18 +1,16 @@
-const requireLive = require('require-reload')(require);
 const remote = require('electron').remote;
 const os = require('os');
 const fs = require('fs');
 const fsUtils = require('fs');
 const fsExtra = require('fs-extra');
 const fsPath = require('path');
+const shell = require('electron').shell;
+
+
 // const globalShortcut = require('electron').remote.globalShortcut;
 // const {clipboard} = require('electron')
 
-const winston = require('winston');
-
-const saveFile = require('electron').remote.require('electron-save-file');
 const dialogUtils = require('electron').remote.dialog 
-const electronShortcut = require('electron').remote.require('electron-localshortcut');
 const prompt = require('electron-prompt');
 
 //Loading other libs
@@ -20,15 +18,23 @@ const handleBars = require('handlebars');
 const hashMD5 = require('md5');
 const moment = require("moment");
 // const uuidv4 = require('uuid/v4');
-const shortid = require('shortid');
+//const shortid = require('shortid');
 // const Vue = require("vue");
-const SimpleMDE = require('simplemde');
+//const SimpleMDE = require('simplemde');
 
 //LIBS
 const appUI=require("./app/assets/js/app-ux.js");
 const appAPI=require("./app/assets/js/app-validator.js");
 const appUtils=require("./app/assets/js/app-utils.js");
 const appData=require("./app/assets/js/app-data.js");
+
+const aceEditor=require("./app/assets/js/ace/ace.js");
+require("./app/assets/js/ace/theme-twilight.js");
+const aceMode = require("./app/assets/js/ace/mode-json.js");
+const aceMode1 = require("./app/assets/js/ace/mode-text.js");
+
+//ALL JSON Query Library
+const jsonQuery = require('json-query');
 
 var isWin = /^win/.test(process.platform);
 
@@ -40,7 +46,7 @@ var deviceID=null;
 var logger = null;
 
 $(function() {
-    shortid.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@');
+    //shortid.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@');
     
     try {
         netAdd=os.networkInterfaces();
@@ -256,3 +262,5 @@ function initLoggers() {
     console.info("Starting Application On "+moment(new Date()).format("Y-MM-d H:m:s"));
     console.info("Application Path "+fsPath.join(getAppPath(),"usermedia"));
 }
+
+
