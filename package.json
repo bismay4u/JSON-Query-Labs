@@ -34,8 +34,8 @@
     "moment": "^2.24.0"
   },
   "devDependencies": {
-    "electron": "1.6.2",
-    "electron-builder": "^10.17.3",
+    "electron": "^6.0.9",
+    "electron-builder": "^21.2.0",
     "electron-packager": "^9.1.0",
     "electron-rebuild": "^1.7.3"
   },
