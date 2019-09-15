@@ -11,21 +11,9 @@ Source Of JSON Document
 + Use REST method to pull JSON Document
 
 
-
-
-
-Coming Up Libraries
-+ JSONPath
-+ JSONata
-+ JSON Pointer
-+ JSPath
-+ JPath
-+ Lodash
-+ Underscore 
-+ JQuery
-+ Vanila javascript
-
+![Screenshot](https://github.com/bismay4u/JSON-Query-Labs/blob/master/build/screenshot.png)
 
 
 
 Thank you
+Bismay
