@@ -288,37 +288,37 @@ function runJSONQuery() {
 }
 
 function loadLocalFile() {
-    filePath = dialogUtils.showOpenDialog({ properties: ['openFile'] });
-    
-    if(filePath==null || filePath[0]==null) return;
+    dialogUtils.showOpenDialog({ properties: ['openFile'] }, function (filePath) {
+        if(filePath==null || filePath[0]==null) return;
 
-    ext = filePath[0].split(".");
-    ext = ext[ext.length-1].toLowerCase();
+        ext = filePath[0].split(".");
+        ext = ext[ext.length-1].toLowerCase();
 
-    if(["json","jsonp","js","txt"].indexOf(ext)<0) {
-        alert("Selected file is not a JSON/Text file");
-        return;
-    }
+        if(["json","jsonp","js","txt"].indexOf(ext)<0) {
+            alert("Selected file is not a JSON/Text file");
+            return;
+        }
 
-    fs.readFile(filePath[0], 'utf-8', (err, data) => {
-            if(err){
-                //console.log("An error ocurred reading the file :" + err.message);
-                alert(err.message);
-                return;
-            }
+        fs.readFile(filePath[0], 'utf-8', (err, data) => {
+                if(err){
+                    //console.log("An error ocurred reading the file :" + err.message);
+                    alert(err.message);
+                    return;
+                }
 
-            try {
-                jsonData=JSON.parse(data);
+                try {
+                    jsonData=JSON.parse(data);
 
-                localStorage.setItem("LAST_FILE",filePath[0]);
+                    localStorage.setItem("LAST_FILE",filePath[0]);
 
-                localStorage.setItem("LAST_DATA",data);
-                editor.setValue(data);
-                beautifyJSONData();    
-            } catch(e) {
-                alert("Error loading file content, may not be a JSON File");
-            }
-        });
+                    localStorage.setItem("LAST_DATA",data);
+                    editor.setValue(data);
+                    beautifyJSONData();    
+                } catch(e) {
+                    alert("Error loading file content, may not be a JSON File");
+                }
+            });
+    });
 }
 
 function beautifyJSONData() {
